@@ -1,11 +1,11 @@
 from rest_framework import generics, mixins
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from .serializers import (
     OrderSerializer,
     CommentSerializer,
     CommentCreateSerializer,
 )
-from .paginations import OrderLargePagination
 from .models import Order, Comment
 
 
@@ -21,6 +21,7 @@ class OrderListView(
     def get(self, request, *args, **kwargs):
         return self.list(request, args, kwargs)
 
+
 class OrderDetailView(
     mixins.RetrieveModelMixin,
     generics.GenericAPIView,
@@ -32,6 +33,7 @@ class OrderDetailView(
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, args, kwargs)
+
 
 class CommentListView(
     mixins.ListModelMixin,
@@ -50,14 +52,16 @@ class CommentListView(
     def get(self, request, *args, **kwargs):
         return self.list(request, args, kwargs)
 
+
 class CommentCreateView(
     mixins.CreateModelMixin,
     generics.GenericAPIView,
 ):
+    permission_classes = [IsAuthenticated]
     serializer_class = CommentCreateSerializer 
 
-    def get_queryset(self):
-        return Comment.objects.all()
+    # def get_queryset(self):
+    #     return Comment.objects.all()
 
     def post(self, request, *args, **kwargs):                    
         return self.create(request, args, kwargs)
