@@ -8,23 +8,65 @@
         <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
         <script>
             $(document).ready(function () {
-                $.get("http://127.0.0.1:8000/api/order")
+                const search = new URLSearchParams(location.search);
+                let page = search.get('page');
+                if (!page) {
+                    page = 1;
+                }
+                page = Number(page);
+
+
+                $.get("http://127.0.0.1:8000/api/order?page=" + page)
                     .then((result) => {
-                        console.log(result)
+                        // console.log(result)
+                        
+                        const total = result.count;
+                        let pages = Math.ceil(total/10);
+                        let start_page = page - 2;
+                        let end_page = page + 2;
+                        
+
+                        if (start_page < 1) {
+                            start_page = 1;
+                            end_page = 5;
+                        }
+
+                        if (end_page > pages) {
+                            end_page = pages;
+                        }
+
+                        for (let i=start_page; i<=end_page; i++) {                            
+                            if (i==page) {
+                                $("#pages").append(
+                                    $(`<li class="page-item active"><a class="page-link" onclick="go_page(${i})">${i}</a></li>`)
+                                )
+                            }
+                            else
+                                $("#pages").append(
+                                    $(`<li class="page-item"><a class="page-link" onclick="go_page(${i})">${i}</a></li>`)
+                                )
+                        }
+                
                         $("#comments").html("");
     
                         for (let i=0; i<result.results.length; i++) {
                             const comment = result.results[i];
     
                             $("#comments").append(
-                                $(`<li class="list-group-item">
+                                $(`<a href="order_detail.html?order_id=${comment.id}" class="list-group-item">
                                     ${comment.ord_ymd}<br><br>
                                     ${comment.ord_no}
-                                </li>`)
+                                </a>`)
                             );
                         }
                     });
             });
+
+            function go_page(page) {
+                const search = new URLSearchParams(location.search);
+                
+                window.location.href = `?page=${page}`;
+            }
         </script>
     </head>
     <body>
@@ -32,6 +74,10 @@
             <ul class="list-group list-group-flush" id="comments">
                 <li class="list-group-item">댓글 내용입니다.<br><br>김건희 (2022.12.12 11:11:11)</li>
             </ul>
+            <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center" id="pages">
+                </ul>
+            </nav>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
     </body>

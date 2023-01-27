@@ -37,6 +37,7 @@ class OrderDetailView(
 
 class CommentListView(
     mixins.ListModelMixin,
+    mixins.DestroyModelMixin,
     generics.GenericAPIView,
 ):
     serializer_class = CommentSerializer
@@ -51,6 +52,9 @@ class CommentListView(
         
     def get(self, request, *args, **kwargs):
         return self.list(request, args, kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, args, kwargs) 
 
 
 class CommentCreateView(
